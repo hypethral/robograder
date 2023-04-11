@@ -1,0 +1,5 @@
+Essay types
+1) newspaper, 1785 training, 592 final, 350 words, (Score 1+2 = Resovled Score),Rubric 1-6, Resolved scoring 2-12 (Persuasive/ Narrative/Expository)
+2) censorship, 1800 training, 600 final, 350 words, (R1D1, R1D2, R2D1, R2D2, D1_resolved, D2_resolved), D1 1-6, D2 1-4 (Persuasive/ Narrative/Expository)
+3) cyclist, 1726 training, 575 final, 150 words, (R1 + R2 = resolved cr score), Rubric 0-3 (source)
+4) source dependent, 1772 training, 589 final, (R1 + R2 = resolved), Rubric 0-3 (source)
