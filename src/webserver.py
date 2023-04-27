@@ -12,7 +12,7 @@ import nltk
 from nltk.corpus import stopwords; # nltk.download('stopwords');
 from nltk import tokenize
 from nltk import pos_tag
-from nltk.tokenize import word_tokenize; # nltk.download('punkt'); nltk.download('averaged_perceptron_tagger');
+from nltk.tokenize import word_tokenize, sent_tokenize; # nltk.download('punkt'); nltk.download('averaged_perceptron_tagger');
 import re
 from spellchecker import SpellChecker
 from collections import Counter
@@ -82,7 +82,9 @@ def avg_word_len(essay):
     return no_of_char(essay)/no_of_words(essay)
 # sentences_count takes in an essay as an argument and returns the number of sentences in the essay by counting the number of words in the argument.
 def sentences_count(essay):
-    return len(essay2word(essay))
+    print(essay)
+    number_of_sentences = sent_tokenize(essay)
+    return len(number_of_sentences)
 def count_nouns(essay):
     sentences = essay2word(essay)
     noun_count=0
@@ -138,7 +140,7 @@ def count_my500(essay):
 # By using regular expression to remove characters that are not A-Z, a-z, or a space from an essay
 # This used to remove, special characters, or other extraneous characters that may be present in an essay - Code Injection
 def remove_puncs(essay):
-    essay = re.sub("[^A-Za-z ]","",essay)
+    essay = re.sub("[^A-Za-z.!? ]","",essay)
     return essay
 stop_words = set(stopwords.words('english')) 
 def remove_stop_words(essay):
@@ -170,11 +172,12 @@ def use_aes(essay):
         cv = vectorizer.transform(myDataset['clean_essay'])
         X = cv.toarray()
         X = np.concatenate((myFeatures.iloc[:, 1:], X), axis = 1)
+        print("0:Sat500,1:char_count,2:word_count,3:sentences_count,4:spelling_mistake_count,5:avg_word_len,6:count_nouns,7:count_adjectives,8:count_adverts,9:count_verbs")
         myCheck = pd.DataFrame(X)
         print(myCheck)
         y_pred = rf.predict(X)
         predict = (y_pred[0])
-        print(predict)
+        print("Score: ", predict)
         return predict
     else:
         return "word_error"
