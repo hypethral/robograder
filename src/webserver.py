@@ -85,46 +85,110 @@ def sentences_count(essay):
     print(essay)
     number_of_sentences = sent_tokenize(essay)
     return len(number_of_sentences)
-def count_nouns(essay):
-    sentences = essay2word(essay)
-    noun_count=0
-    for i in sentences:
-        pos_sentence = nltk.pos_tag(i)
-        for j in pos_sentence:
-            pos_tag = j[1]
-            if(pos_tag[0]=='N'):
-                noun_count+=1
-    return noun_count
-def count_adjectives(essay):
-    sentences = essay2word(essay)
-    adj_count=0
-    for i in sentences:
-        pos_sentence = nltk.pos_tag(i)
-        for j in pos_sentence:
-            pos_tag = j[1]
-            if(pos_tag[0]=='J'):
-                adj_count+=1
-    return adj_count
-def count_verbs(essay):
-    sentences = essay2word(essay)
-    verb_count=0
-    for i in sentences:
-        pos_sentence = nltk.pos_tag(i)
-        for j in pos_sentence:
-            pos_tag = j[1]
-            if(pos_tag[0]=='V'):
-                verb_count+=1
-    return verb_count
-def count_adverts(essay):
-    sentences = essay2word(essay)
-    adverb_count=0
-    for i in sentences:
-        pos_sentence = nltk.pos_tag(i)
-        for j in pos_sentence:
-            pos_tag = j[1]
-            if(pos_tag[0]=='R'):
-                adverb_count+=1
-    return adverb_count
+def pos(essay):
+    
+    return pos
+def count_books(essay):
+    data = open('myBook.txt').read()
+    book = re.findall('[a-z]+', data.lower())
+    essay=essay.lower()
+    new_essay = re.sub("[^A-Za-z0-9]"," ",essay)
+    new_essay = re.sub("[0-9]","",new_essay)
+    count=0
+    all_words = new_essay.split()
+    for i in all_words:
+        if i in book:
+            count+=1
+    return count
+import spacy # python3 -m spacy download en_core_web_lg
+#load the large English model
+nlp = spacy.load("en_core_web_lg")
+
+def entity_recognition_ORG(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "ORG":
+            c += 1;
+    return c
+def entity_recognition_PERSON(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "PERSON":
+            c += 1;
+    return c
+def entity_recognition_NORP(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "NORP":
+            c += 1;
+    return c
+def entity_recognition_FAC(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "FAC":
+            c += 1;
+    return c
+def entity_recognition_GPE(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "GPE":
+            c += 1;
+    return c
+
+def entity_recognition_LOC(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "LOC":
+            c += 1;
+    return c
+def entity_recognition_PRODUCT(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "PRODUCT":
+            c += 1;
+    return c
+def entity_recognition_EVENT(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "EVENT":
+            c += 1;
+    return c
+def entity_recognition_WORK_OF_ART(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "WORK_OF_ART":
+            c += 1;
+    return c
+def entity_recognition_DATE(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "DATE":
+            c += 1;
+    return c
+def entity_recognition_QUANTITY(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "QUANTITY":
+            c += 1;
+    return c
+def entity_recognition_CARDINAL(essay):
+    doc = nlp(essay)
+    c=0;
+    for ent in doc.ents:
+        if ent.label_ == "CARDINAL":
+            c += 1;
+    return c
 data = open('my500.txt').read()
 my500 = re.findall('[a-z]+', data.lower())
 def count_my500(essay):
@@ -151,32 +215,69 @@ def remove_stop_words(essay):
             filtered_sentence.append(w)
     return ' '.join(filtered_sentence)
 
-def use_aes(essay):
-    if len(essay) > 40:
-        rf = pickle.load(open("Models/RF",'rb'))
-        myDataset = pd.DataFrame([essay], columns=['clean_essay'])
+def use_aes_lower(essay):
+    if len(essay) > 30:
+        rf = pickle.load(open("Models/RFBagLower",'rb'))
+        vectorizer = pickle.load(open("Models/vectorizerLower",'rb'))
+        essay = remove_puncs(essay)
+        clean_essay = remove_stop_words(essay)
+        myDataset = pd.DataFrame([essay], columns=['essay'])
+        myDataset['clean_essay'] = clean_essay
         # Convert to lower str
         myDataset['clean_essay'] = myDataset['clean_essay'].str.lower()
+        import spacy # python3 -m spacy download en_core_web_lg
+        #load the large English model
+        nlp = spacy.load("en_core_web_lg")
+        #list to store the tokens and pos tags 
+        token = []
+        pos = []
+        for sent in nlp.pipe(myDataset['essay']):
+            if sent.has_annotation('DEP'):
+                #add the tokens present in the sentence to the token list
+                token.append([word.text for word in sent])
+                #add the pos tage for each token to the pos list
+                pos.append([word.pos_ for word in sent])
         myFeatures = myDataset.copy()
-        myFeatures['Sat500'] = myFeatures['clean_essay'].apply(count_my500)
-        myFeatures['char_count'] = myFeatures['clean_essay'].apply(no_of_char)
-        myFeatures['word_count'] = myFeatures['clean_essay'].apply(no_of_words)
-        myFeatures['sentences_count'] = myFeatures['clean_essay'].apply(sentences_count)
-        myFeatures['spelling_mistake_count'] = myFeatures['clean_essay'].apply(spell_check_count)
-        myFeatures['avg_word_len'] = myFeatures['clean_essay'].apply(avg_word_len)
-        myFeatures['count_nouns'] = myFeatures['clean_essay'].apply(count_nouns)
-        myFeatures['count_adjectives'] = myFeatures['clean_essay'].apply(count_adjectives)
-        myFeatures['count_adverts'] = myFeatures['clean_essay'].apply(count_adverts)
-        myFeatures['count_verbs'] = myFeatures['clean_essay'].apply(count_verbs)
-        vectorizer = pickle.load(open("Models/vectorizer",'rb'))
+        myFeatures['pos'] = pos
+        myFeatures['adjective'] = myFeatures.apply(lambda x: x['pos'].count('ADJ'), axis=1)
+        myFeatures['adposition'] = myFeatures.apply(lambda x: x['pos'].count('ADP'), axis=1)
+        myFeatures['adverb'] = myFeatures.apply(lambda x: x['pos'].count('ADV'), axis=1)
+        myFeatures['auxiliary'] = myFeatures.apply(lambda x: x['pos'].count('AUX'), axis=1)
+        myFeatures['conjunction'] = myFeatures.apply(lambda x: x['pos'].count('CONJ'), axis=1)
+        myFeatures['determiner'] = myFeatures.apply(lambda x: x['pos'].count('DET'), axis=1)
+        myFeatures['interjection'] = myFeatures.apply(lambda x: x['pos'].count('INTJ'), axis=1)
+        myFeatures['noun'] = myFeatures.apply(lambda x: x['pos'].count('NOUN'), axis=1)
+        myFeatures['pronoun'] = myFeatures.apply(lambda x: x['pos'].count('PRON'), axis=1)
+        myFeatures['proper-noun'] = myFeatures.apply(lambda x: x['pos'].count('PROPN'), axis=1)
+        myFeatures['punctuation'] = myFeatures.apply(lambda x: x['pos'].count('PUNCT'), axis=1)
+        myFeatures['verb'] = myFeatures.apply(lambda x: x['pos'].count('VERB'), axis=1)
+        myFeatures['entity_recognition_ORG'] = myFeatures['essay'].apply(entity_recognition_ORG)
+        myFeatures['entity_recognition_PERSON'] = myFeatures['essay'].apply(entity_recognition_PERSON)
+        myFeatures['entity_recognition_NORP'] = myFeatures['essay'].apply(entity_recognition_NORP)
+        myFeatures['entity_recognition_FAC'] = myFeatures['essay'].apply(entity_recognition_FAC)
+        myFeatures['entity_recognition_GPE'] = myFeatures['essay'].apply(entity_recognition_GPE)
+        myFeatures['entity_recognition_LOC'] = myFeatures['essay'].apply(entity_recognition_LOC)
+        myFeatures['entity_recognition_PRODUCT'] = myFeatures['essay'].apply(entity_recognition_PRODUCT)
+        myFeatures['entity_recognition_EVENT'] = myFeatures['essay'].apply(entity_recognition_EVENT)
+        myFeatures['entity_recognition_WORK_OF_ART'] = myFeatures['essay'].apply(entity_recognition_WORK_OF_ART)
+        myFeatures['entity_recognition_DATE'] = myFeatures['essay'].apply(entity_recognition_DATE)
+        myFeatures['entity_recognition_QUANTITY'] = myFeatures['essay'].apply(entity_recognition_QUANTITY)
+        myFeatures['entity_recognition_CARDINAL'] = myFeatures['essay'].apply(entity_recognition_CARDINAL)
+        myFeatures['ebooks'] = myFeatures['clean_essay'].apply(count_books)
+        myFeatures['Sat500'] = myFeatures['essay'].apply(count_my500)
+        myFeatures['char_count'] = myFeatures['essay'].apply(no_of_char)
+        myFeatures['word_count'] = myFeatures['essay'].apply(no_of_words)
+        myFeatures['sentences_count'] = myFeatures['essay'].apply(sentences_count)
+        myFeatures['spelling_mistake_count'] = myFeatures['essay'].apply(spell_check_count)
+        myFeatures['avg_word_len'] = myFeatures['essay'].apply(avg_word_len)
         cv = vectorizer.transform(myDataset['clean_essay'])
         X = cv.toarray()
-        X = np.concatenate((myFeatures.iloc[:, 1:], X), axis = 1)
-        print("0:Sat500,1:char_count,2:word_count,3:sentences_count,4:spelling_mistake_count,5:avg_word_len,6:count_nouns,7:count_adjectives,8:count_adverts,9:count_verbs")
+        X = np.concatenate((myFeatures.iloc[:, 3:], X), axis = 1)
         myCheck = pd.DataFrame(X)
-        print(myCheck)
         y_pred = rf.predict(X)
         predict = (y_pred[0])
+        print(list(myFeatures.iloc[:, 3:].columns))
+        print(myCheck)
         print("Score: ", predict)
         return predict
     else:
@@ -188,18 +289,28 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template ('home.html')
+    return render_template ('lower.html')
 
 
-score = 5.5
+score = -1;
 @app.route('/', methods=['POST'])
-def do_aes():
+def do_aes_lower():
     myEssay = request.get_json("text")["text"]
-    myEssay = remove_puncs(myEssay)
-    myEssay = remove_stop_words(myEssay)
-    score = use_aes(myEssay)
+    score = use_aes_lower(myEssay)
     return jsonify({'score': score}), 201
 
+
+@app.route('/upper', methods=['GET'])
+def upper():
+    return render_template ('upper.html')
+
+
+score = -1;
+@app.route('/upper', methods=['POST'])
+def do_aes_upper():
+    myEssay = request.get_json("text")["text"]
+    score = use_aes_lower(myEssay)
+    return jsonify({'score': score}), 201
 app.run(host="127.0.0.1", port=8080,debug=True)
 
 
