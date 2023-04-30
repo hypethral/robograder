@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Demo: Robograder</title>
+    <title>Lower Secondary</title>
     <style>
       body{
         font-family: 'Lucida Sans Unicode';
@@ -44,9 +44,19 @@
         top: 740px;
         right: 47%;
       }
+      ul {
+        position:absolute;
+        top: 30px;
+        right: 5%;
+      }
     </style>
   </head>
   <body>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="lower">Lower Secondary</a></li>
+      <li><a href="upper">Upper Secondary</a></li>
+    </ul>
     <h1>Robograder for Lower Secondary</h1>
     <div class="input-group">
         <textarea id="main" placeholder="Please type your essay.." rows="16" cols="120"></textarea>
@@ -61,12 +71,12 @@
                 text:text.value
             }
             const str = JSON.stringify(obj)
-            fetch("http://127.0.0.1:8080/", {
+            fetch("http://127.0.0.1:8080/lower", {
                 method: 'POST',
                 body: JSON.stringify(obj),
             }).then((response) => response.json()).then((result) => {
                 if(!result){
-                  output.innerHTML="Please stay within specified boundries";
+                  output.innerHTML="word_error 404";
                 }
                 else{
                   if (result.score >= 8) {
@@ -86,9 +96,9 @@
                   }
                   output.innerHTML="Your grade is "+grade+". Your score is "+result.score+"/10"
                 }
-                console.log('Success:', result);
+                console.log('200:', result);
             }).catch((error) => {
-                console.error('Error:', error);
+                console.error('404:', error);
             });
 
         }
